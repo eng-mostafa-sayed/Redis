@@ -10,6 +10,14 @@ const redisClient = createClient({
   url: `redis://127.0.0.1:${REDIS_PORT}`,
 });
 
+redisClient.on("error", (err) => {
+  console.error("Redis Client Error:", err);
+});
+
+redisClient.on("connect", () => {
+  console.log("Connected to Redis");
+});
+
 const app = express();
 
 app.get("/repos/:username", async (req: Request, res: Response) => {
