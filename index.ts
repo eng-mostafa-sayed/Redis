@@ -1,6 +1,5 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { createClient } from "redis";
-
 import fetch from "node-fetch";
 
 const PORT = process.env.PORT || 5000;
@@ -47,8 +46,29 @@ const getRepos = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-app.get("/repos/:username", getRepos);
+//cache middleware
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+const cache = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { username } = req.params || {};
+    const data = await redisClient.get(username);
+
+    if (data !== null) {
+      res.send(setResponse(username, Number(data)));
+    } else {
+      next();
+    }
+  } catch (err) {
+    console.error("Redis cache error:", err);
+    next(); // don’t block request if Redis fails
+  }
+};
+
+app.get("/repos/:username", cache, getRepos);
+
+(async () => {
+  await redisClient.connect(); // connect first
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+})();
