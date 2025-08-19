@@ -1,0 +1,22 @@
+{
+  "name": "redis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "start": "nodemon index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "node-fetch": "^2.7.0",
+    "redis": "^5.8.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node-fetch": "^2.6.13",
+    "nodemon": "^3.1.10"
+  }
+}
