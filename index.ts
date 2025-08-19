@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { createClient } from "redis";
 
 import fetch from "node-fetch";
@@ -24,12 +24,16 @@ const setResponse = (username: string, repos: number) => {
   return `<h2>${username} has ${repos} public repositories</h2>`;
 };
 
-app.get("/repos/:username", async (req: Request, res: Response) => {
+const getRepos = async (req: Request, res: Response, next: NextFunction) => {
   try {
     console.log("Fetching data");
     const username = req.params.username;
     const data = await fetch(`https://api.github.com/users/${username}`);
-
+    if (!data.ok) {
+      return res
+        .status(data.status)
+        .send(`<h2>GitHub request failed: ${data.statusText}</h2>`);
+    }
     const userData = await data.json();
     const repos = Number(userData.public_repos ?? 0);
 
@@ -38,7 +42,9 @@ app.get("/repos/:username", async (req: Request, res: Response) => {
     console.error(error);
     return res.status(500).send("<h2>Internal server error</h2>");
   }
-});
+};
+
+app.get("/repos/:username", getRepos);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
