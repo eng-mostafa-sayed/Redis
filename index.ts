@@ -37,6 +37,9 @@ const getRepos = async (req: Request, res: Response, next: NextFunction) => {
     const userData = await data.json();
     const repos = Number(userData.public_repos ?? 0);
 
+    // Cache for 1 hour (3600s). setEx expects a string value.
+    redisClient.setEx(username, 3600, repos.toString());
+
     res.send(setResponse(username, repos));
   } catch (error) {
     console.error(error);
