@@ -20,6 +20,10 @@ redisClient.on("connect", () => {
 
 const app = express();
 
+const setResponse = (username: string, repos: number) => {
+  return `<h2>${username} has ${repos} public repositories</h2>`;
+};
+
 app.get("/repos/:username", async (req: Request, res: Response) => {
   try {
     console.log("Fetching data");
@@ -29,7 +33,7 @@ app.get("/repos/:username", async (req: Request, res: Response) => {
     const userData = await data.json();
     const repos = Number(userData.public_repos ?? 0);
 
-    res.send(`<h2>${username} has ${repos} public repositories</h2>`);
+    res.send(setResponse(username, repos));
   } catch (error) {
     console.error(error);
     return res.status(500).send("<h2>Internal server error</h2>");
