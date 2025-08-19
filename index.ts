@@ -1,7 +1,15 @@
 import express, { Request, Response } from "express";
+import { createClient } from "redis";
+
 import fetch from "node-fetch";
 
 const PORT = process.env.PORT || 5000;
+const REDIS_PORT = Number(process.env.REDIS_PORT || "6379");
+
+const redisClient = createClient({
+  url: `redis://127.0.0.1:${REDIS_PORT}`,
+});
+
 const app = express();
 
 app.get("/repos/:username", async (req: Request, res: Response) => {
